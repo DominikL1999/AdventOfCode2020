@@ -1,0 +1,7 @@
+# ignore every generated exe file
+*.exe
+
+#ignore every powershell script except those that are in root folder and those that are in templates folder
+*.ps1
+!/*.ps1
+!templates/*.ps1
