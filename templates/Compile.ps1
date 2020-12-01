@@ -1,0 +1,1 @@
+g++ -std=c++17 -Wall -Wextra -Wpedantic -Wconversion -o main main.cpp
