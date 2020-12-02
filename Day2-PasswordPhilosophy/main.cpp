@@ -11,22 +11,16 @@ using std::endl;
 const int MAX_LENGTH_STRING = 100;
 
 struct Policy {
-    int lb;
-    int ub;
+    int a;
+    int b;
     char c;
 };
 
 bool isValid(Policy p, string s) {
-    int sum = 0;
-    for (size_t i = 0; i < s.size(); i++) {
-        if (s[i] == p.c) sum++;
-    }
-    return p.lb <= sum && p.ub >= sum;
+    return (s[p.a - 1] == p.c) + (s[p.b - 1] == p.c) == 1;
 }
 
 int main() {
-    // parse input
-
     // ifstream input("input/test-input.txt");
     ifstream input("input/input.txt");
 
@@ -36,7 +30,7 @@ int main() {
         Policy p;
         char s[MAX_LENGTH_STRING];
 
-        int ret = std::sscanf(line.c_str(), "%i-%i %c: %s", &p.lb, &p.ub, &p.c, s);
+        int ret = std::sscanf(line.c_str(), "%i-%i %c: %s", &p.a, &p.b, &p.c, s);
         assert(ret == 4);
 
         string str = s;
