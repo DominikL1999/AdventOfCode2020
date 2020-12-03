@@ -1,8 +1,14 @@
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <vector>
 
-using namespace std;
+using std::ifstream;
+using std::vector;
+using std::string;
+using std::getline;
+using std::cout;
+using std::endl;
 
 int main() {
     // parse input
