@@ -1,14 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <vector>
 #include <set>
 #include <map>
 #include <algorithm>
 #include <cassert>
 
 using std::ifstream;
-using std::vector;
 using std::set;
 using std::map;
 using std::pair;
@@ -17,6 +15,7 @@ using std::getline;
 using std::cout;
 using std::endl;
 
+/* Parsing */
 
 // trim from start (in place)
 static inline void ltrim(std::string &s) {
@@ -89,41 +88,7 @@ pair<string, map<string, int>> parse_rule(string line) {
     return {pair.first, bags};
 }
 
-// void test_1() {
-//     string rule_string = "light red bags contain 1 bright white bag, 2 muted yellow bags.";
-//     auto rule = parse_rule(rule_string);
-
-//     assert(rule.first == "light red");
-//     assert(rule.second.size() == 2);
-//     assert(rule.second[0].first == "bright white");
-//     assert(rule.second[0].second == 1);
-//     assert(rule.second[1].first == "muted yellow");
-//     assert(rule.second[1].second == 2);
-// }
-
-// void test_2() {
-//     string rule_string = "bright white bags contain 1 shiny gold bag.";
-//     auto rule = parse_rule(rule_string);
-
-//     assert(rule.first == "bright white");
-//     assert(rule.second.size() == 1);
-//     assert(rule.second[0].first == "shiny gold");
-//     assert(rule.second[0].second == 1);
-// }
-
-// void test_3() {
-//     string rule_string = "faded blue bags contain no other bags.";
-//     auto rule = parse_rule(rule_string);
-
-//     assert(rule.first == "faded blue");
-//     assert(rule.second.size() == 0);
-// }
-
-// void test_parse_rule() {
-//     test_1();
-//     test_2();
-//     test_3();
-// }
+/* Solution */
 
 template<typename K, typename V>
 bool map_contains(map<K, V> map, K key) {
@@ -159,6 +124,18 @@ set<string> can_contain(map<string, set<string>>& reversed_rules, string bag) {
     return can_contain_set;
 }
 
+size_t contains(map<string, map<string, int>>&  rules, string bag) {
+    // cout << "bag: \"" << bag << "\"" << endl;
+    size_t n = 0;
+    
+    for (auto b : rules[bag]) {
+        n += (contains(rules, b.first) + 1) * b.second;
+    }
+    return n;
+}
+
+/* Main */
+
 int main() {
     // parse input
     map<string, map<string, int>> rules;
@@ -170,10 +147,8 @@ int main() {
     }
 
     // do some calculating
-    map<string, set<string>> reversed_rules = reverse_rules(rules);
-    set<string> contains_shiny_gold = can_contain(reversed_rules, "shiny gold");
-
-    cout << "solution: " << contains_shiny_gold.size() << endl;
+    size_t n = contains(rules, "shiny gold");
 
     // write output
+    cout << "The shiny gold bag contains: " << n << " bags." << endl;
 }
