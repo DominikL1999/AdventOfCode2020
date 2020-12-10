@@ -13,8 +13,6 @@ using std::endl;
 
 int main() {
     // parse input
-    vector<int> numbers;
-    int number;
 
     // ifstream input("input/input.txt");
     ifstream input("input/test-input.txt");
