@@ -16,7 +16,7 @@ int main() {
     vector<int> numbers;
     int number;
 
-    // ifstream input("input/test-input.txt");
+    // ifstream input("input/input.txt");
     ifstream input("input/test-input.txt");
     string line;
     while (getline(input, line)) {
