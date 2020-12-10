@@ -6,6 +6,7 @@
 using std::ifstream;
 using std::vector;
 using std::string;
+using std::pair;
 using std::getline;
 using std::cout;
 using std::endl;
@@ -16,9 +17,9 @@ int main() {
     int number;
 
     // ifstream input("input/test-input.txt");
-    ifstream input("input/input.txt");
-    while (input >> number) {
-        numbers.push_back(number);
+    ifstream input("input/test-input.txt");
+    string line;
+    while (getline(input, line)) {
     }
 
     // do some calculating
