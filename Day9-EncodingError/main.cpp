@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 using std::ifstream;
 using std::vector;
@@ -34,6 +35,17 @@ void test_numbers(vector<int>& numbers, size_t preamble_size, size_t& mistake_po
     }
 }
 
+pair<int, int> smallest_and_largest(vector<int>& numbers, pair<size_t, size_t> range) {
+    int smallest = INT_MAX;
+    int biggest = INT_MIN;
+    for (size_t i = range.first; i <= range.second; i++) {
+        smallest = std::min(smallest, numbers[i]);
+        biggest = std::max(biggest, numbers[i]);
+    }
+
+    return {smallest, biggest};
+}
+
 int main() {
     // parse input
 
@@ -48,7 +60,33 @@ int main() {
     // do some calculating
     size_t mistake_pos;
     test_numbers(numbers, 25, mistake_pos);
+    int mistake = numbers[mistake_pos];
+    int solution = 0;
+
+    size_t step_size = 2;
+    while (solution == 0) {
+        int sum = 0;
+        for (size_t i = 0; i < step_size; i++)
+            sum += numbers[i];
+        if (sum == mistake) {
+            pair sol = smallest_and_largest(numbers, {0, step_size - 1});
+            solution = sol.first + sol.second;
+            break;
+        }
+
+        for (size_t i = 1; i <= numbers.size() - step_size; i++) {
+            sum -= numbers[i - 1];
+            sum += numbers[i + step_size - 1];
+            if (sum == mistake) {
+                pair sol = smallest_and_largest(numbers, {i, i + step_size - 1});
+                solution = sol.first + sol.second;
+                break;
+            }
+        }
+
+        step_size++;
+    }
 
     // write output
-    cout << "solution: " << numbers[mistake_pos] << endl;
+    cout << "solution: " << solution << endl;
 }
