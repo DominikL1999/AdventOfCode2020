@@ -29,59 +29,75 @@ Position& operator+=(Position& p1, const Position& p2) {
     return p1;
 }
 
-enum Direction { North, East, South, West };
-
-Direction parse_direction(char c) {
-    switch(c) {
-        case 'N': return North;
-        case 'E': return East;
-        case 'S': return South;
-        default: return West;
-    }
+ostream& operator<<(ostream& output, const Position& pos) {
+    output << "(" << pos.first << "," << pos.second << ")";
+    return output;
 }
 
-pair<int, int> get_direction_pair(const Direction& dir) {
-    switch(dir) {
-        case North: return {-1, 0};
-        case East: return {0, 1};
-        case South: return {1, 0};
+pair<int, int> get_direction_pair(const char& c) {
+    switch(c) {
+        case 'N': return {-1, 0};
+        case 'E': return {0, 1};
+        case 'S': return {1, 0};
         default: return {0, -1};
     }
 }
 
-pair<int, int> get_direction_pair(const char& c) {
-    return get_direction_pair(parse_direction(c));
-}
-
 struct ShipState {
-    Direction dir;
     Position pos;
+    Position distance_to_waypoint;
+
+private:
+    void rotate_waypoint_left(int degrees) {
+        switch(degrees) {
+            case 90:
+                distance_to_waypoint = {-distance_to_waypoint.second, distance_to_waypoint.first};
+                break;
+            case 180:
+                distance_to_waypoint = distance_to_waypoint * -1;
+                break;
+            case 270:
+                distance_to_waypoint = {distance_to_waypoint.second, -distance_to_waypoint.first};
+                break;
+        }
+    }
+
+    void rotate_waypoint_right(int degrees) {
+        rotate_waypoint_left(360 - degrees);
+    }
+
+public:
 
     friend ostream& operator<<(ostream& output, const ShipState& ship_state) {
-        output << "(" << ship_state.pos.first << "," << ship_state.pos.second << ") -> " << ship_state.dir;
+        output << ship_state.pos << " --> " << ship_state.distance_to_waypoint;
         return output;
     }
 
     void move(Instruction instruction) {
         switch(instruction.first) {
-            case 'L':
-                dir = (Direction)((dir - (instruction.second % 360) / 90 + 4) % 4);
+            case 'L': {
+                rotate_waypoint_left(instruction.second);
                 break;
-            case 'R':
-                dir = (Direction)((dir + (instruction.second % 360) / 90 + 4) % 4);
+            }
+            case 'R': {
+                rotate_waypoint_right(instruction.second);
                 break;
-            case 'F':
-                pos += get_direction_pair(dir) * instruction.second;
+            }
+            case 'F': {
+                Position movement = distance_to_waypoint * instruction.second;
+                pos += movement;
                 break;
-            default:
-                pos += get_direction_pair(instruction.first) * instruction.second;
+            }
+            default: {
+                distance_to_waypoint += get_direction_pair(instruction.first) * instruction.second;
                 break;
+            }
         }
     }
 };
 
 const Position INITIAL_POSITION{0, 0};
-const Direction INITIAL_DIRECTION = East;
+const Position INTIAL_DISTANCE_TO_WAYPOINT{-1, 10}; // param 1: y, param 2: x
 
 int get_manhattan_distance(const Position p1, const Position p2) {
     return abs(p1.first - p2.first) + abs(p1.second - p2.second);
@@ -99,9 +115,10 @@ int main() {
     }
 
     // do some calculating
-    ShipState ship{INITIAL_DIRECTION, INITIAL_POSITION};
-    for (auto instruction : instructions)
+    ShipState ship{INITIAL_POSITION, INTIAL_DISTANCE_TO_WAYPOINT};
+    for (auto instruction : instructions) {
         ship.move(instruction);
+    }
 
     int manhattan_distance = get_manhattan_distance(INITIAL_POSITION, ship.pos);
 
