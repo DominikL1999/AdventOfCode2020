@@ -13,45 +13,51 @@ using std::getline;
 using std::cout;
 using std::endl;
 
-/* Parsing */
+struct Solution {
+    long long start;
+    long long repeat_every;
+};
 
-long long parse_id(string s) {
-    if (s == "x") return -1;
-    else return stoll(s);
+/* Parsing */
+bool parse_id(string s, long long & id) {
+    if (s == "x") {
+        return false;
+    }
+    else {
+        id = stoll(s);
+        return true;
+    }
 }
 
-vector<long long> parse_bus_ids(string line, char delim) {
-    vector<long long> bus_ids;
+vector<pair<long long, long long>> parse_ids_and_offsets(string line, char delim) {
+    vector<pair<long long, long long>> ids_and_offsets;
 
     size_t pos;
+    long long dist = 0;
     while ((pos = line.find(delim)) != string::npos) {
-        bus_ids.push_back(parse_id(line.substr(0, pos)));
+        long long id;
+        bool parse_success = parse_id(line.substr(0, pos), id);
+        if (parse_success) ids_and_offsets.push_back({id, dist});
         line.erase(0, pos + 1);
+        dist++;
     }
-    bus_ids.push_back(parse_id(line));
+    long long id;
+    if (parse_id(line, id)) ids_and_offsets.push_back({id, dist});
 
-    return bus_ids;
+    return ids_and_offsets;
 }
 
-/* Solution (327300950120029) */
+/* Solution */
 
 bool is_divisible_by(long long a, long long b) {
     return (a / b) * b == a;
 }
 
-bool check_solution(pair<long long, long long>& solution, vector<long long>& bus_ids, size_t up_to) {
-    // assert(solution.first < solution.second);
-    for (size_t i = 0; i <= up_to; i++) {
-        if (!is_divisible_by(solution.first +  i, bus_ids[i])) {
-            cout << "ERROR:" << endl;
-            cout << "solution.first: " << solution.first << endl;
-            cout << "i: " << i << endl;
-            cout << "id: " << bus_ids[i] << endl;
-            return false;
-        }
-    }
+long long find_first(long long start, long long repeat_every, long long id, long long offset) {
+    long long cur = 0;
+    while (!is_divisible_by(start + repeat_every * cur + offset, id)) cur++;
 
-    return true;
+    return start + repeat_every * cur;
 }
 
 int main() {
@@ -63,32 +69,24 @@ int main() {
     getline(input, line); // skip first line
     getline(input, line);
 
-    vector<long long> bus_ids = parse_bus_ids(line, ',');
+    vector<pair<long long, long long>> ids_and_offsets = parse_ids_and_offsets(line, ',');
 
     // do some calculating
 
-    pair<long long, long long> solution{0, bus_ids[0]};
+    // init solution
+    Solution solution{0, 1};
 
-    for (long long i = 1; i < (long long)bus_ids.size(); i++) {
-        long long id = bus_ids[i];
-        long long j = 1;
-        while (!is_divisible_by(solution.first + j * solution.second + i, id))
-            j++;
-        solution.first = solution.first + j * solution.second;
-        j = 1;
+    for (auto pair : ids_and_offsets) {
+        auto id = pair.first;
+        auto offset = pair.second;
 
-        // find solution.second
-        while (!is_divisible_by(solution.first + j * solution.second + i, id))
-            j++;
-        solution.second = solution.first + j * solution.second - solution.first;
-        // cout << "solution: " << solution.first << " " << solution.second << endl;
+        long long first_instance = find_first(solution.start, solution.repeat_every, id, offset);
+        long long second_instance = find_first(first_instance + solution.repeat_every, solution.repeat_every, id, offset);
 
-        assert(check_solution(solution, bus_ids, i));
+        solution.start = first_instance;
+        solution.repeat_every = second_instance - first_instance;
     }
 
-    if (solution.first > solution.second)
-        solution.first = solution.first % solution.second;
-
     // write output
-    cout << "solution: " << solution.first << endl;
+    cout << "solution: " << solution.start << endl;
 }
