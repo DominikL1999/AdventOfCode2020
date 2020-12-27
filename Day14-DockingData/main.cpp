@@ -15,6 +15,10 @@ using std::getline;
 using std::cout;
 using std::endl;
 
+bool is_mask(string line) {
+    return line.substr(0, 6) == "mask =";
+}
+
 string parse_mask(string line) {
     return line.substr(7, 36);
 }
@@ -29,24 +33,36 @@ pair<unsigned long long, unsigned long long> parse_assignment(string line) {
     return {mem_pos, value};
 }
 
-bool is_mask(string line) {
-    return line.substr(0, 6) == "mask =";
-}
+vector<bitset<36>> get_bit_variations(bitset<36> bits, vector<size_t> floating_positions) {
+    if (floating_positions.empty()) return {bits};
 
-unsigned long long modify_value(unsigned long long value, string mask) {
-    bitset<36>bits(value);
+    size_t pos = floating_positions[floating_positions.size() - 1];
+    floating_positions.pop_back();
 
-    for (size_t i = 0; i < 36; i++) {
-        if (mask[i] == '1') bits.set(35 - i, true);
-        else if (mask[i] == '0') bits.set(35 - i, false);
-        else continue;
-    }
+    bits.set(35 - pos, false);
+    vector<bitset<36>> set1 = get_bit_variations(bits, floating_positions);
+    bits.set(35 - pos, true);
+    vector<bitset<36>> set2 = get_bit_variations(bits, floating_positions);
 
-    return bits.to_ullong();
+    set1.insert(set1.end(), set2.begin(), set2.end());
+
+    return set1;
 }
 
 void update_memory(map<unsigned long long, unsigned long long>& mem, string mask, pair<unsigned long long, unsigned long long> assignment) {
-    mem[assignment.first] = modify_value(assignment.second, mask);
+    vector<unsigned long long> addresses;
+    bitset<36> bits(assignment.first); // initialize bitset with the 36 least significant bits of address
+    vector<size_t> floating_positions; // the positions in the mask, which contain an 'X'
+
+    for (size_t i = 0; i < 36; i++) {
+        if (mask[i] == '1') bits.set(35 - i, true);
+        else if (mask[i] == 'X') floating_positions.push_back(i);
+        else continue;
+    }
+
+    auto variations = get_bit_variations(bits, floating_positions);
+    for (auto variation : variations)
+        mem[variation.to_ullong()] = assignment.second;
 }
 
 int main() {
@@ -54,11 +70,8 @@ int main() {
     // ifstream input("input/test-input.txt");
 
     string line;
-    // get mask
     string mask;
-    getline(input, line);
-    mask = parse_mask(line);
-
+    
     map<unsigned long long, unsigned long long> mem;
 
     while (getline(input, line)) {
