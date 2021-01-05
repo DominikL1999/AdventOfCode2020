@@ -2,22 +2,22 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <cassert>
 
 using std::ifstream;
 using std::vector;
-using std::map;
+using std::unordered_map;
 using std::string;
 using std::pair;
 using std::getline;
 using std::cout;
 using std::endl;
 
-const size_t NUMBER_OF_ROUNDS = 1000000;
+const size_t NUMBER_OF_ROUNDS = 30000000;
 
 template<typename K, typename V>
-bool contains(const map<K, V>& map, K key) {
+bool contains(const unordered_map<K, V>& map, K key) {
     return map.find(key) != map.end();
 }
 
@@ -26,7 +26,7 @@ void make_line() {
 }
 
 // returns the next number to be said
-size_t say_number(map<size_t, pair<size_t, size_t>>& last_said, size_t number, size_t pos) {
+size_t say_number(unordered_map<size_t, pair<size_t, size_t>>& last_said, size_t number, size_t pos) {
 
     // step 1: get next_number
 
@@ -57,7 +57,7 @@ int main() {
     ifstream input("input/input.txt");
     // ifstream input("input/test-input.txt");
 
-    map<size_t, pair<size_t, size_t>> last_said;
+    unordered_map<size_t, pair<size_t, size_t>> last_said;
     size_t pos = 0;
     size_t number;
     while (input.good()) {
