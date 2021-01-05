@@ -14,7 +14,7 @@ using std::getline;
 using std::cout;
 using std::endl;
 
-const size_t NUMBER_OF_ROUNDS = 2020;
+const size_t NUMBER_OF_ROUNDS = 1000000;
 
 template<typename K, typename V>
 bool contains(const map<K, V>& map, K key) {
@@ -39,20 +39,12 @@ size_t say_number(map<size_t, pair<size_t, size_t>>& last_said, size_t number, s
     }
 
     // step 2: update last_said
-    // auto it = last_said.find(next_number);
-    // if (it == last_said.end()) {
-    //     it->second.first = SIZE_MAX;
-    //     it->second.second = pos;
-    // } else {
-    //     it->second.first = it->second.second;
-    //     it->second.second =
-    // }
-    if (!contains(last_said, next_number))
-        last_said[next_number] = {SIZE_MAX, pos};
-    else {
-        pair<size_t, size_t>& p2 = last_said[next_number];
-        p2.first = p2.second;
-        p2.second = pos;
+    auto it = last_said.find(next_number);
+    if (it == last_said.end()) {
+        last_said.insert({next_number, {SIZE_MAX, pos}});
+    } else {
+        it->second.first = it->second.second;
+        it->second.second = pos;
     }
 
     // step 3: return next_number
@@ -77,18 +69,9 @@ int main() {
         pos++;
     }
     
-    // for (auto pair : last_said)
-    //     cout << pair.first << ": " << pair.second.first << " " << pair.second.second << endl;
-    // make_line();
-    
     // do some calculating
     for (; pos < NUMBER_OF_ROUNDS; pos++) {
         number = say_number(last_said, number, pos);
-
-        // for (auto pair : last_said)
-        //     cout << pair.first << ": " << pair.second.first << " " << pair.second.second << endl;
-        // cout << "number after: " << number << endl;
-        // make_line();
     }
 
     // write output
